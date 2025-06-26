@@ -3,6 +3,8 @@ package com.example.userdetails.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -11,7 +13,7 @@ import lombok.*;
 @Table(name = "users")
 @Getter
 @Setter
-public class User {
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -3,9 +3,11 @@ package com.example.userdetails.service;
 import com.example.userdetails.model.User;
 import com.example.userdetails.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,5 +22,10 @@ public class UserService {
     @Cacheable(value = "users", key = "#id")
     public Optional<User> get(Long id) {
         return repository.findById(id);
+    }
+
+    @SneakyThrows
+    public List<User> getAll() {
+        return repository.findAll();
     }
 }
