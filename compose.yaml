@@ -29,12 +29,28 @@ services:
     networks:
       - user-network
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - http.cors.enabled=true
+      - http.cors.allow-origin="*"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - user-network
+
   kafka:
     image: bitnami/kafka:3.6
     container_name: kafka
     ports:
       - "9092:9092"
       - "9093:9093"
+
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -55,6 +71,7 @@ services:
       - postgres
       - redis
       - kafka
+      - elasticsearch
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/users
       - SPRING_DATASOURCE_USERNAME=admin
@@ -63,9 +80,11 @@ services:
       - SPRING_REDIS_PORT=6379
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - SPRING_KAFKA_CONSUMER_GROUP_ID=user-consumer-group
+      - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - user-network
+    restart: unless-stopped
 
 networks:
   user-network:

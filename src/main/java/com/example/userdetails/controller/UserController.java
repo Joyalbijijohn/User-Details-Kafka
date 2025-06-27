@@ -1,5 +1,6 @@
 package com.example.userdetails.controller;
 
+import com.example.userdetails.document.UserDocument;
 import com.example.userdetails.model.User;
 import com.example.userdetails.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -29,5 +30,10 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<User>> getAll() {
         return ResponseEntity.ok(service.getAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDocument>> search(@RequestParam String name) {
+        return ResponseEntity.ok(service.searchByName(name));
     }
 }

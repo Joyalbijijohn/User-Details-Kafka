@@ -1,10 +1,10 @@
 package com.example.userdetails.service;
 
+import com.example.userdetails.document.UserDocument;
 import com.example.userdetails.model.User;
 import com.example.userdetails.repository.UserRepository;
+import com.example.userdetails.repository.UserSearchRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,18 +14,31 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository repository;
+    private final UserSearchRepository searchRepository;
 
     public User create(User user) {
-        return repository.save(user);
+        User saved = repository.save(user);
+
+        // Index to Elasticsearch
+        UserDocument doc = UserDocument.builder()
+                .id(saved.getId())
+                .name(saved.getName())
+                .email(saved.getEmail())
+                .build();
+
+        searchRepository.save(doc);
+        return saved;
     }
 
-    @Cacheable(value = "users", key = "#id")
     public Optional<User> get(Long id) {
         return repository.findById(id);
     }
 
-    @SneakyThrows
     public List<User> getAll() {
         return repository.findAll();
+    }
+
+    public List<UserDocument> searchByName(String name) {
+        return searchRepository.findByNameContainingIgnoreCase(name);
     }
 }
